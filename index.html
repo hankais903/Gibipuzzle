@@ -177,6 +177,7 @@ body{
   line-height:1.3;margin:14px 0 0;color:var(--lamp);
 }
 .intro-sub{margin:8px 0 22px;font-size:13.5px;color:var(--cream-dim)}
+.intro-sub.tappable{cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:4px}
 
 .intro .intro-nick{
   width:min(100%,250px);margin:0 auto 20px;align-self:center;justify-content:center;
@@ -486,7 +487,7 @@ const COACH={
 
 /* ═══ 排行榜：接 Google Apps Script ═══
    把部署後拿到的網址貼進 API，沒填就只是本機遊玩，不會連線 */
-const VERSION='Beta v1.1';
+const VERSION='Beta v1.2';
 const MUSIC=['music1.mp3','music2.mp3','music3.mp3'];  // 跟 index.html 放同一層。多首就寫成
                             // ['music1.mp3','music2.mp3']，會隨機輪流播
 const MUSIC_VOL=0.22;      // 音量壓低，才不會蓋掉音效
@@ -907,8 +908,20 @@ $('board').onclick=openBoard;
 $('boardClose').onclick=()=>$('boardCard').classList.remove('show');
 function initIntro(){
   if(!API)return;                                 // 沒接排行榜就不用暱稱
-  if(NICK)$('introSub').textContent=`歡迎回來，${NICK}`;
-  else $('introNickBox').hidden=false;
+  if(NICK){
+    $('introSub').textContent=`歡迎回來，${NICK}`;
+    $('introSub').classList.add('tappable');      // 點名字就能改
+    $('introSub').onclick=()=>{
+      $('introNickBox').hidden=false;
+      $('introNick').value=NICK;
+      $('introSub').textContent='要改成什麼名字呢？';
+      $('introSub').classList.remove('tappable');
+      $('introSub').onclick=null;
+      $('introNick').focus();
+    };
+  }else{
+    $('introNickBox').hidden=false;
+  }
 }
 $('introNick').addEventListener('keydown',e=>{if(e.key==='Enter')$('introGo').click();});
 initMusic();

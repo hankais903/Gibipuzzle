@@ -509,6 +509,7 @@ function start(level){
     const word=['','只要照規則走','需要多想一步','要來回推敲'][lv.tier];
     $('grade').textContent=`${lv.n}×${lv.n}・${word}`;
     say(COACH[S.level]||'第一隻貓幫你放好了，從牠身邊開始推');
+    prefetchBoard();
   },30);
 }
 function tick(){
@@ -700,6 +701,7 @@ function win(){
   $('doneSub').textContent=notes.join('　');
   setTimeout(()=>$('doneCard').classList.add('show'),700);
   if(API){
+    delete BOARD_CACHE[S.level];
     submitScore().then(ok=>{
       if(!NICK)$('doneSub').textContent+='　（設定暱稱才能上榜）';
       else if(ok)$('doneSub').textContent+='　成績已上傳';
@@ -746,11 +748,12 @@ $('introGo').onclick=()=>{
   box.classList.add('gone');
   setTimeout(()=>box.style.display='none',400);
   if(!S.solved&&!S.over){S.t0=Date.now();}   // 看標題的時間不算進成績
+  prefetchBoard();
 };
 
 /* ═══ 排行榜：接 Google Apps Script ═══
    把部署後拿到的網址貼進 API，沒填就只是本機遊玩，不會連線 */
-const API='https://script.google.com/macros/s/AKfycbxjpwQWb2meoYzsMGOU4nizvCbSrujvpx-ErVgArDkJdmUXjFxVqRYRKoHFPlcPd9M6lA/exec';
+const API='';
 
 const MEM={};
 function store(k,v){
@@ -773,21 +776,49 @@ function rowHTML(i,name,detail){
   const me=name===NICK?' me':'';
   return `<div class="row${me}"><b>${i+1}</b><span>${name}</span><em>${detail}</em></div>`;
 }
-async function loadBoard(){
-  const box=$('boardList');
-  if(!API){box.innerHTML='<div class="empty">還沒設定排行榜網址<br>（程式碼開頭的 API）</div>';return;}
-  box.innerHTML='<div class="empty">載入中…</div>';
-  try{
-    const r=await fetch(API+'?level='+S.level);
-    const d=await r.json();
-    const rows=boardTab==='level'
-      ? (d.level||[]).map((x,i)=>rowHTML(i,x.name,`${mmss(x.sec)}　錯${x.miss}`))
-      : (d.overall||[]).map((x,i)=>rowHTML(i,x.name,`${x.cleared} 關`));
-    box.innerHTML=rows.length?rows.join(''):
-      `<div class="empty">${boardTab==='level'?'這一關還沒有人上榜':'還沒有人通關'}</div>`;
-  }catch(e){
-    box.innerHTML='<div class="empty">連不上排行榜<br>檢查網址與部署權限</div>';
+function jsonp(url){
+  return new Promise((res,rej)=>{
+    const cb='jibi_cb_'+Date.now();
+    const sc=document.createElement('script');
+    const done=()=>{clearTimeout(timer);delete window[cb];sc.remove();};
+    const timer=setTimeout(()=>{done();rej(new Error('timeout'));},10000);
+    window[cb]=d=>{done();res(d);};
+    sc.onerror=()=>{done();rej(new Error('load'));};
+    sc.src=url+(url.includes('?')?'&':'?')+'callback='+cb;
+    document.body.appendChild(sc);
+  });
+}
+const BOARD_CACHE={};
+async function getBoard(level){
+  const c=BOARD_CACHE[level];
+  if(c&&Date.now()-c.t<30000)return c.d;          // 30 秒內不重打
+  let d=null;
+  try{ d=await jsonp(API+'?level='+level); }       // JSONP 不受跨網域限制
+  catch(e){
+    try{ d=await (await fetch(API+'?level='+level)).json(); }
+    catch(_){ d=null; }
   }
+  if(d)BOARD_CACHE[level]={d,t:Date.now()};
+  return d;
+}
+function renderBoard(d){
+  const box=$('boardList');
+  if(!d){box.innerHTML='<div class="empty">連不上排行榜<br>部署權限要選「任何人」</div>';return;}
+  const rows=boardTab==='level'
+    ? (d.level||[]).map((x,i)=>rowHTML(i,x.name,`${mmss(x.sec)}　錯${x.miss}`))
+    : (d.overall||[]).map((x,i)=>rowHTML(i,x.name,`${x.cleared} 關`));
+  box.innerHTML=rows.length?rows.join(''):
+    `<div class="empty">${boardTab==='level'?'這一關還沒有人上榜':'還沒有人通關'}</div>`;
+}
+async function loadBoard(){
+  if(!API){$('boardList').innerHTML='<div class="empty">還沒設定排行榜網址<br>（程式碼開頭的 API）</div>';return;}
+  const cached=BOARD_CACHE[S.level];
+  if(cached&&Date.now()-cached.t<30000){renderBoard(cached.d);return;}   // 有預抓好的就秒開
+  $('boardList').innerHTML='<div class="empty">載入中…</div>';
+  renderBoard(await getBoard(S.level));
+}
+function prefetchBoard(){                          // 背景先抓，順便讓後端保持熱機
+  if(API)setTimeout(()=>getBoard(S.level).catch(()=>{}),300);
 }
 function openBoard(){
   $('boardCard').classList.add('show');

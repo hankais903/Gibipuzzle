@@ -168,10 +168,46 @@ body{
   padding:24px;text-align:center;transition:opacity .35s;
 }
 .intro.gone{opacity:0;pointer-events:none}
-.intro-face{
-  width:min(46vw,190px);aspect-ratio:1;background:var(--win-cat) center/contain no-repeat;
-  filter:drop-shadow(0 8px 16px rgba(180,120,110,.45));animation:cheer .55s cubic-bezier(.34,1.56,.64,1);
+.intro-stage{
+  position:relative;width:min(56vw,220px);aspect-ratio:1;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:7px;
 }
+.patch{
+  border-radius:10px;transform:none;opacity:1;
+  animation:patchIn .5s cubic-bezier(.34,1.56,.64,1) backwards;
+}
+.patch:nth-child(1){background:var(--r1);animation-delay:.02s}
+.patch:nth-child(2){background:var(--r6);animation-delay:.08s}
+.patch:nth-child(3){background:var(--r2);animation-delay:.14s}
+.patch:nth-child(4){background:var(--r4);animation-delay:.20s}
+.patch:nth-child(5){background:var(--r5);animation-delay:.26s}
+.patch:nth-child(6){background:var(--r7);animation-delay:.32s}
+.patch:nth-child(7){background:var(--r8);animation-delay:.38s}
+.patch:nth-child(8){background:var(--r3);animation-delay:.44s}
+.patch:nth-child(9){background:var(--r9);animation-delay:.50s}
+@keyframes patchIn{from{transform:scale(.2) rotate(-30deg);opacity:0}}
+
+.intro-face{
+  position:absolute;left:50%;top:52%;width:104%;aspect-ratio:1;
+  transform:translate(-50%,-50%);
+  background:var(--win-cat) center/contain no-repeat;
+  filter:drop-shadow(0 8px 16px rgba(180,120,110,.45));
+  animation:popUp .55s cubic-bezier(.34,1.56,.64,1) .58s backwards;
+}
+@keyframes popUp{
+  from{transform:translate(-50%,20%) scale(.4) rotate(-10deg);opacity:0}
+}
+.intro-title,.intro-sub,.intro-nick,.intro-go,.intro-ver{
+  animation:riseIn .45s cubic-bezier(.34,1.4,.64,1) backwards;
+}
+.intro-title{animation-delay:.9s}
+.intro-sub{animation-delay:1.05s}
+.intro .intro-nick{animation-delay:1.18s}
+.intro-go{animation-delay:1.2s}
+.intro-ver{animation-delay:1.35s}
+@keyframes riseIn{from{transform:translateY(14px);opacity:0}}
+
+.intro.fast *{animation-duration:.01s!important;animation-delay:0s!important}
 .intro-title{
   font-family:var(--display);font-weight:700;font-size:clamp(24px,7.4vw,34px);
   line-height:1.3;margin:14px 0 0;color:var(--lamp);
@@ -287,7 +323,12 @@ body{
 </div>
 
 <div class="intro" id="intro">
-  <div class="intro-face"></div>
+  <div class="intro-stage">
+    <i class="patch"></i><i class="patch"></i><i class="patch"></i>
+    <i class="patch"></i><i class="patch"></i><i class="patch"></i>
+    <i class="patch"></i><i class="patch"></i><i class="patch"></i>
+    <div class="intro-face"></div>
+  </div>
   <h1 class="intro-title">吉比不能<br>跟吉比坐一起</h1>
   <p class="intro-sub" id="introSub">貓咪們要坐開一點喔</p>
   <div class="nickbox intro-nick" id="introNickBox" hidden>
@@ -487,7 +528,7 @@ const COACH={
 
 /* ═══ 排行榜：接 Google Apps Script ═══
    把部署後拿到的網址貼進 API，沒填就只是本機遊玩，不會連線 */
-const VERSION='Beta v1.2';
+const VERSION='Beta v1.3';
 const MUSIC=['music1.mp3','music2.mp3','music3.mp3'];  // 跟 index.html 放同一層。多首就寫成
                             // ['music1.mp3','music2.mp3']，會隨機輪流播
 const MUSIC_VOL=0.22;      // 音量壓低，才不會蓋掉音效
@@ -819,6 +860,8 @@ $('hint').onclick=()=>{
 };
 $('toNext').onclick=()=>start(S.over?S.level:S.level+1);
 $('stay').onclick=()=>$('doneCard').classList.remove('show');
+
+$('intro').addEventListener('pointerdown',()=>$('intro').classList.add('fast'),{once:true});
 
 MUTED=store('mute')==='1';
 $('mute').classList.toggle('off',MUTED);

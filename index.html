@@ -23,7 +23,8 @@
   --body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%}
+html{height:100%;overscroll-behavior:none}
+body{height:100%}
 body{
   margin:0;font-family:var(--body);color:var(--cream);
   background:
@@ -32,7 +33,7 @@ body{
     var(--ink);
   display:flex;flex-direction:column;align-items:center;
   padding:max(14px,env(safe-area-inset-top)) 14px max(18px,env(safe-area-inset-bottom));
-  overscroll-behavior:none;
+  overscroll-behavior:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
 }
 .wrap{width:100%;max-width:460px;display:flex;flex-direction:column;gap:12px}
 
@@ -80,7 +81,7 @@ body{
 
 /* ── 拼布毯 ── */
 .quilt{
-  position:relative;width:100%;aspect-ratio:1;border-radius:18px;
+  position:relative;width:100%;aspect-ratio:1;border-radius:18px;touch-action:none;
   padding:0;background:transparent;
   box-shadow:0 18px 40px -18px rgba(0,0,0,.8);
 }
@@ -499,6 +500,7 @@ const endDrag=()=>{
   D.on=false;
   if(D.moved){D.suppress=true;refresh();say(D.mode==='erase'?'擦掉了一整排記號':'一整排記號畫好了');}
 };
+window.addEventListener('touchmove',e=>{if(D.on)e.preventDefault();},{passive:false});
 window.addEventListener('pointerup',endDrag);
 window.addEventListener('pointercancel',endDrag);
 

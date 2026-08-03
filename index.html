@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>吉比不能跟吉比坐一起</title>
+<meta name="theme-color" content="#1E1A2E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="吉比">
+<meta name="description" content="吉比不能跟吉比坐一起：一款貓咪解謎遊戲">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
@@ -136,11 +141,11 @@ body{
 @keyframes wobble{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
 
 /* ── 工具列 ── */
-.tools{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.tools{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
 .tool{
   position:relative;border:0;background:rgba(243,231,211,.08);
   color:var(--cream);border-radius:15px;padding:11px 6px;font-family:var(--body);font-weight:500;
-  font-size:13px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:.15s;
+  font-size:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:.15s;
 }
 .tool span{font-size:19px;line-height:1}
 .tool:hover:not(:disabled){background:rgba(243,231,211,.12);transform:translateY(-1px)}
@@ -152,6 +157,50 @@ body{
 }
 
 /* ── 完成 ── */
+.intro{
+  position:fixed;inset:0;z-index:40;background:var(--ink);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  padding:24px;text-align:center;transition:opacity .35s;
+}
+.intro.gone{opacity:0;pointer-events:none}
+.intro-face{
+  width:min(46vw,190px);aspect-ratio:1;background:var(--win-cat) center/contain no-repeat;
+  filter:drop-shadow(0 8px 18px rgba(0,0,0,.55));animation:cheer .55s cubic-bezier(.34,1.56,.64,1);
+}
+.intro-title{
+  font-family:var(--display);font-weight:700;font-size:clamp(24px,7.4vw,34px);
+  line-height:1.3;margin:14px 0 0;color:var(--lamp);
+}
+.intro-sub{margin:8px 0 26px;font-size:13.5px;color:var(--cream-dim)}
+.intro-go{
+  border:0;border-radius:16px;padding:14px 46px;font-family:var(--body);font-weight:700;
+  font-size:16px;background:var(--lamp);color:var(--ink);cursor:pointer;
+}
+.card.board{max-width:340px;text-align:left}
+.card.board h2{text-align:center;margin:0 0 14px}
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tab{
+  flex:1;border:0;border-radius:10px;padding:8px;font-family:var(--body);font-size:13px;
+  background:rgba(243,231,211,.08);color:var(--cream-dim);cursor:pointer;
+}
+.tab.on{background:var(--lamp);color:var(--ink);font-weight:700}
+.list{min-height:120px;font-size:13.5px;line-height:1.9}
+.list .row{display:flex;gap:8px;align-items:baseline}
+.list .row b{width:22px;color:var(--lamp);font-family:var(--display);font-weight:600}
+.list .row span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.list .row em{font-style:normal;color:var(--cream-dim);font-variant-numeric:tabular-nums}
+.list .me{color:var(--lamp)}
+.list .empty{color:var(--cream-dim);text-align:center;padding:24px 0}
+.nickbox{display:flex;gap:6px;margin:14px 0 10px}
+.nickbox input{
+  flex:1;border:0;border-radius:10px;padding:10px 12px;font-family:var(--body);font-size:14px;
+  background:rgba(243,231,211,.1);color:var(--cream);
+}
+.nickbox input::placeholder{color:rgba(243,231,211,.4)}
+.nickbox button{
+  width:52px;border:0;border-radius:10px;background:rgba(243,231,211,.15);
+  color:var(--cream);font-family:var(--body);font-size:14px;cursor:pointer;
+}
 .done-card{
   position:fixed;inset:0;background:rgba(30,26,46,.82);backdrop-filter:blur(6px);
   display:none;place-items:center;padding:24px;z-index:20;
@@ -219,6 +268,30 @@ body{
     <button class="tool" id="undo"><span>↩︎</span>回上一步</button>
     <button class="tool" id="hint"><span>💡</span>提示<i class="badge" id="hintCount">3</i></button>
     <button class="tool" id="clear"><span>🧹</span>全部清空</button>
+    <button class="tool" id="board"><span>🏆</span>排行榜</button>
+  </div>
+</div>
+
+<div class="intro" id="intro">
+  <div class="intro-face"></div>
+  <h1 class="intro-title">吉比不能<br>跟吉比坐一起</h1>
+  <p class="intro-sub">一格以上，請保持距離</p>
+  <button class="intro-go" id="introGo">開始玩</button>
+</div>
+
+<div class="done-card" id="boardCard">
+  <div class="card board">
+    <h2>排行榜</h2>
+    <div class="tabs">
+      <button class="tab on" id="tabLevel">本關</button>
+      <button class="tab" id="tabAll">總覽</button>
+    </div>
+    <div class="list" id="boardList">載入中…</div>
+    <div class="nickbox">
+      <input id="nickInput" maxlength="10" placeholder="你的暱稱">
+      <button id="nickSave">存</button>
+    </div>
+    <button class="ghost" id="boardClose">關閉</button>
   </div>
 </div>
 
@@ -607,6 +680,7 @@ function gameOver(reason){
 }
 function win(){
   S.solved=true;clearInterval(S.timer);
+  S.sec=Math.floor((Date.now()-S.t0)/1000);
   say('全部就位，午睡時間到了');
   document.querySelectorAll('.cell').forEach(el=>{if(el.dataset.v==='2')el.classList.add('done');});
   const n=S.n;
@@ -619,6 +693,12 @@ function win(){
   if(S.hints<3)notes.push(`用了 ${3-S.hints} 次提示`);
   $('doneSub').textContent=notes.join('　');
   setTimeout(()=>$('doneCard').classList.add('show'),700);
+  if(API){
+    submitScore().then(ok=>{
+      if(!NICK)$('doneSub').textContent+='　（設定暱稱才能上榜）';
+      else if(ok)$('doneSub').textContent+='　成績已上傳';
+    });
+  }
 }
 
 /* ═══ 工具 ═══ */
@@ -648,6 +728,69 @@ $('prev').onclick=()=>{if(S.level>1)start(S.level-1);};
 $('next').onclick=()=>start(S.level+1);
 $('toNext').onclick=()=>start(S.over?S.level:S.level+1);
 $('stay').onclick=()=>$('doneCard').classList.remove('show');
+
+$('introGo').onclick=()=>{
+  const box=$('intro');
+  box.classList.add('gone');
+  setTimeout(()=>box.style.display='none',400);
+  if(!S.solved&&!S.over){S.t0=Date.now();}   // 看標題的時間不算進成績
+};
+
+/* ═══ 排行榜：接 Google Apps Script ═══
+   把部署後拿到的網址貼進 API，沒填就只是本機遊玩，不會連線 */
+const API='';
+
+const MEM={};
+function store(k,v){
+  if(v===undefined){try{return localStorage.getItem(k)||MEM[k]||'';}catch(e){return MEM[k]||'';}}
+  MEM[k]=v;try{localStorage.setItem(k,v);}catch(e){}
+}
+let NICK=store('nick');
+let boardTab='level';
+
+function mmss(sec){return String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');}
+
+async function submitScore(){
+  if(!API||!NICK)return false;
+  const body=JSON.stringify({name:NICK,level:S.level,sec:S.sec,miss:S.mistakes,hint:3-S.hints});
+  try{await fetch(API,{method:'POST',body});return true;}
+  catch(e){try{await fetch(API,{method:'POST',body,mode:'no-cors'});return true;}catch(_){return false;}}
+}
+
+function rowHTML(i,name,detail){
+  const me=name===NICK?' me':'';
+  return `<div class="row${me}"><b>${i+1}</b><span>${name}</span><em>${detail}</em></div>`;
+}
+async function loadBoard(){
+  const box=$('boardList');
+  if(!API){box.innerHTML='<div class="empty">還沒設定排行榜網址<br>（程式碼開頭的 API）</div>';return;}
+  box.innerHTML='<div class="empty">載入中…</div>';
+  try{
+    const r=await fetch(API+'?level='+S.level);
+    const d=await r.json();
+    const rows=boardTab==='level'
+      ? (d.level||[]).map((x,i)=>rowHTML(i,x.name,`${mmss(x.sec)}　錯${x.miss}`))
+      : (d.overall||[]).map((x,i)=>rowHTML(i,x.name,`${x.cleared} 關`));
+    box.innerHTML=rows.length?rows.join(''):
+      `<div class="empty">${boardTab==='level'?'這一關還沒有人上榜':'還沒有人通關'}</div>`;
+  }catch(e){
+    box.innerHTML='<div class="empty">連不上排行榜<br>檢查網址與部署權限</div>';
+  }
+}
+function openBoard(){
+  $('nickInput').value=NICK;
+  $('boardCard').classList.add('show');
+  loadBoard();
+}
+$('board').onclick=openBoard;
+$('boardClose').onclick=()=>$('boardCard').classList.remove('show');
+$('tabLevel').onclick=()=>{boardTab='level';$('tabLevel').classList.add('on');$('tabAll').classList.remove('on');loadBoard();};
+$('tabAll').onclick=()=>{boardTab='all';$('tabAll').classList.add('on');$('tabLevel').classList.remove('on');loadBoard();};
+$('nickSave').onclick=()=>{
+  NICK=$('nickInput').value.trim().slice(0,10);
+  store('nick',NICK);
+  loadBoard();
+};
 
 start(1);
 </script>

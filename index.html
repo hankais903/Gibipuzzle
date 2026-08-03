@@ -57,6 +57,9 @@ body{
 .nav:hover:not(:disabled){background:rgba(243,231,211,.1)}
 .nav:disabled{opacity:.28;cursor:default}
 .meta{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.metarow{display:flex;align-items:center;gap:9px}
+.mute{border:0;background:none;padding:0;font-size:14px;line-height:1;cursor:pointer;opacity:.75}
+.mute.off{opacity:.3}
 .grade{
   font-size:11px;font-weight:500;padding:2px 9px;border-radius:9px;
   background:rgba(243,231,211,.1);color:rgba(243,231,211,.8);white-space:nowrap;
@@ -236,13 +239,14 @@ body{
 
   <div class="topbar">
     <div class="lvl">
-      <button class="nav" id="prev" aria-label="上一關">‹</button>
       <h1>第<span id="lvlNum">1</span>關</h1>
-      <button class="nav" id="next" aria-label="下一關">›</button>
     </div>
     <div class="meta">
       <div class="grade" id="grade">入門</div>
-      <div class="clock" id="clock">00:00</div>
+      <div class="metarow">
+        <button class="mute" id="mute" aria-label="音效開關">🔊</button>
+        <div class="clock" id="clock">00:00</div>
+      </div>
     </div>
   </div>
 
@@ -469,6 +473,47 @@ const COACH={
   5:'卡住時換個方向看：改看直行，或改看顏色'
 };
 
+/* ═══ 排行榜：接 Google Apps Script ═══
+   把部署後拿到的網址貼進 API，沒填就只是本機遊玩，不會連線 */
+const API='';
+
+const MEM={};
+function store(k,v){
+  if(v===undefined){try{return localStorage.getItem(k)||MEM[k]||'';}catch(e){return MEM[k]||'';}}
+  MEM[k]=v;try{localStorage.setItem(k,v);}catch(e){}
+}
+let NICK=store('nick');
+
+/* ═══ 音效：即時合成，不外掛任何音檔 ═══ */
+let AC=null,MUTED=false;
+function ac(){
+  try{
+    if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();
+    if(AC.state==='suspended')AC.resume();
+  }catch(e){AC=null;}
+  return AC;
+}
+function beep(freq,dur,type,vol,delay,slideTo){
+  const c=ac();if(!c||MUTED)return;
+  const t=c.currentTime+(delay||0);
+  const o=c.createOscillator(),g=c.createGain();
+  o.type=type||'sine';o.frequency.setValueAtTime(freq,t);
+  if(slideTo)o.frequency.exponentialRampToValueAtTime(slideTo,t+dur);
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.linearRampToValueAtTime(vol||.12,t+.012);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(g);g.connect(c.destination);
+  o.start(t);o.stop(t+dur+.03);
+}
+const SFX={
+  mark :()=>beep(430,.055,'square',.045),
+  erase:()=>beep(290,.05,'square',.04),
+  cat  :()=>{beep(660,.13,'sine',.13);beep(990,.2,'sine',.1,.075);},
+  wrong:()=>beep(190,.24,'sawtooth',.1,0,85),
+  win  :()=>[523,659,784,1047].forEach((f,i)=>beep(f,.26,'triangle',.12,i*.09)),
+  over :()=>[440,349,262].forEach((f,i)=>beep(f,.32,'triangle',.1,i*.15))
+};
+
 /* ═══ 遊戲狀態 ═══ */
 const EMPTY=0,MARK=1,CAT=2,WRONG=3;
 const PATCH=['var(--r1)','var(--r2)','var(--r3)','var(--r4)','var(--r5)','var(--r6)','var(--r7)','var(--r8)','var(--r9)'];
@@ -478,7 +523,7 @@ let S={level:1,n:6,reg:[],cols:[],cells:[],history:[],hints:3,t0:0,timer:null,so
 function start(level){
   S.level=level;S.solved=false;S.over=false;S.history=[];S.hints=3;S.mistakes=0;drawLives();
   $('lvlNum').textContent=level;
-  $('prev').disabled=level<=1;
+  store('lv',String(level));
   $('loading').style.display='grid';
   $('doneCard').classList.remove('show');
   clearInterval(S.timer);$('clock').textContent='00:00';
@@ -586,10 +631,12 @@ function tap(i){
   }
   let wrong=null;
   if(quick){                       // 連點兩下 → 放貓；放錯就變成紅叉
-    if(S.cols[(i/S.n)|0]===i%S.n){S.cells[i]=CAT;}
-    else{S.cells[i]=WRONG;S.mistakes++;wrong=whyNot(i);}
+    if(S.cols[(i/S.n)|0]===i%S.n){S.cells[i]=CAT;SFX.cat();}
+    else{S.cells[i]=WRONG;S.mistakes++;wrong=whyNot(i);SFX.wrong();}
   }else{                           // 單點 → 空格畫叉，已有叉叉則清空
-    S.cells[i]=S.cells[i]===EMPTY?MARK:EMPTY;
+    const was=S.cells[i];
+    S.cells[i]=was===EMPTY?MARK:EMPTY;
+    was===EMPTY?SFX.mark():SFX.erase();
   }
   refresh(i);
   if(wrong){
@@ -663,7 +710,7 @@ function drawLives(losing){
 function say(t,bad){const m=$('msg');m.textContent=t;m.classList.toggle('bad',!!bad);}
 
 function gameOver(reason){
-  S.over=true;clearInterval(S.timer);
+  S.over=true;clearInterval(S.timer);SFX.over();
   say('三隻小魚都沒了，這一關結束',true);
   $('doneCats').textContent='🙀';
   $('doneTitle').classList.remove('big');
@@ -673,7 +720,7 @@ function gameOver(reason){
   setTimeout(()=>$('doneCard').classList.add('show'),650);
 }
 function win(){
-  S.solved=true;clearInterval(S.timer);
+  S.solved=true;clearInterval(S.timer);SFX.win();
   S.sec=Math.floor((Date.now()-S.t0)/1000);
   say('全部就位，午睡時間到了');
   document.querySelectorAll('.cell').forEach(el=>{if(el.dataset.v==='2')el.classList.add('done');});
@@ -719,10 +766,18 @@ $('hint').onclick=()=>{
   S.hints--;refresh();
   if(!S.solved)say('幫你放好一隻貓');
 };
-$('prev').onclick=()=>{if(S.level>1)start(S.level-1);};
-$('next').onclick=()=>start(S.level+1);
 $('toNext').onclick=()=>start(S.over?S.level:S.level+1);
 $('stay').onclick=()=>$('doneCard').classList.remove('show');
+
+MUTED=store('mute')==='1';
+$('mute').classList.toggle('off',MUTED);
+$('mute').textContent=MUTED?'🔇':'🔊';
+$('mute').onclick=()=>{
+  MUTED=!MUTED;store('mute',MUTED?'1':'0');
+  $('mute').classList.toggle('off',MUTED);
+  $('mute').textContent=MUTED?'🔇':'🔊';
+  if(!MUTED)SFX.mark();
+};
 
 $('introGo').onclick=()=>{
   const nb=$('introNickBox');
@@ -735,19 +790,10 @@ $('introGo').onclick=()=>{
   box.classList.add('gone');
   setTimeout(()=>box.style.display='none',400);
   if(!S.solved&&!S.over){S.t0=Date.now();}   // 看標題的時間不算進成績
+  ac();                                       // 在使用者手勢裡解鎖音訊
   prefetchBoard();
 };
 
-/* ═══ 排行榜：接 Google Apps Script ═══
-   把部署後拿到的網址貼進 API，沒填就只是本機遊玩，不會連線 */
-const API='https://script.google.com/macros/s/AKfycbxjpwQWb2meoYzsMGOU4nizvCbSrujvpx-ErVgArDkJdmUXjFxVqRYRKoHFPlcPd9M6lA/exec';
-
-const MEM={};
-function store(k,v){
-  if(v===undefined){try{return localStorage.getItem(k)||MEM[k]||'';}catch(e){return MEM[k]||'';}}
-  MEM[k]=v;try{localStorage.setItem(k,v);}catch(e){}
-}
-let NICK=store('nick');
 
 function mmss(sec){return String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');}
 
@@ -815,7 +861,7 @@ function initIntro(){
 $('introNick').addEventListener('keydown',e=>{if(e.key==='Enter')$('introGo').click();});
 initIntro();
 
-start(1);
+start(Math.max(1,Number(store('lv'))||1));   // 接著上次的關卡
 </script>
 </body>
 </html>

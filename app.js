@@ -22,3 +22,10 @@ showIntro(document.body, {
   tagline: game.meta.tagline,
   version: VERSION,
 }, () => session.resetClock());            // 看標題的時間不算進成績
+
+/* 離線支援：第一次開啟後就把遊戲存在裝置裡 */
+if ('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});   // 不支援就當作沒這功能
+  });
+}

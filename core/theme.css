@@ -31,6 +31,9 @@ body{
   padding:max(14px,env(safe-area-inset-top)) 14px max(18px,env(safe-area-inset-bottom));
   overscroll-behavior:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
 }
+/* 外層容器：必須自己撐滿寬度。少了這段，寬度會變成「由內容決定」，
+   而內容寬度又取決於容器，兩邊互相等對方，畫面就會忽大忽小。 */
+#app{width:100%;max-width:460px;display:flex;flex-direction:column;align-items:center}
 .wrap{width:100%;max-width:460px;display:flex;flex-direction:column;gap:12px}
 
 

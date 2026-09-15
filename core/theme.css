@@ -15,6 +15,10 @@
   --alert:#F0555F;
   --r1:#FFC98A; --r2:#A9DDBD; --r3:#FFAFA3; --r4:#FFC0D3;
   --r5:#A8D6F0; --r6:#FFE08F; --r7:#CDBDF5; --r8:#BFE3A8; --r9:#F7C9A0;
+  /* 平台的吉祥物 --cat / --cat-win 由 app.js 設定。
+     不能寫在這裡：CSS 變數裡的相對路徑是相對於「使用它的樣式表」，
+     不是定義它的這一份，所以寫死會被各遊戲的資料夾算歪。 */
+
   --display:"Fredoka","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
   --body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
 }

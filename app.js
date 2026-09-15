@@ -7,16 +7,26 @@ import { showIntro } from './core/intro.js';
 import * as audio from './core/audio.js';
 import * as gibi from './games/gibi/index.js';
 import * as match from './games/match/index.js';
+import * as push  from './games/push/index.js';
 
-const VERSION = 'Beta v1.5';
-const GAMES = { gibi, match };
+const VERSION = 'Beta v1.6';
+const GAMES = { gibi, match, push };
 
 /* 之後首頁會讓玩家選；現在先用網址決定，方便測試：
    index.html?g=match 就會開連連看 */
 const pick = new URLSearchParams(location.search).get('g');
 const game = GAMES[pick] || gibi;
 
-/* 只載入這個遊戲的樣式，兩個遊戲的 CSS 才不會互相蓋掉 */
+/* 平台共用的貓咪圖。
+   CSS 變數裡如果放相對路徑，瀏覽器會以「使用它的那份樣式表」為基準去算，
+   而各遊戲的樣式表在 games/xxx/ 底下，算出來一定是錯的。
+   所以這裡先換算成完整網址再交給 CSS。 */
+for (const [name, file] of [['--cat','cat.webp'], ['--cat-win','cat-win.webp']]){
+  const url = new URL(`assets/art/${file}`, document.baseURI).href;
+  document.documentElement.style.setProperty(name, `url("${url}")`);
+}
+
+/* 只載入這個遊戲的樣式，各遊戲的 CSS 才不會互相蓋掉 */
 await new Promise(done => {
   const link = document.createElement('link');
   link.rel = 'stylesheet';

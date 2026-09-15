@@ -1,0 +1,18 @@
+{
+  "name": "吉比不能跟吉比坐一起",
+  "short_name": "吉比",
+  "description": "貓咪拼布邏輯解謎：每個顏色、每行每列各一隻貓，而且不能坐在一起。",
+  "lang": "zh-Hant",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFF5EA",
+  "theme_color": "#FFF5EA",
+  "categories": ["games", "puzzle"],
+  "icons": [
+    { "src": "assets/icons/icon-192.png",          "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512.png",          "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

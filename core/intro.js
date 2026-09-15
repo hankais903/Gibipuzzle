@@ -16,8 +16,15 @@ export function showIntro(root, spec, onStart){
         <input id="introNick" maxlength="10" placeholder="輸入暱稱">
       </div>
       <button class="intro-go" id="introGo">開始玩</button>
+      <div class="game-switch" id="gameSwitch"></div>
       <div class="ver intro-ver" id="verIntro">${spec.version || ''}</div>
     </div>`);
+
+  /* 暫時的遊戲切換。第三階段會換成正式的首頁 */
+  if (spec.others && spec.others.length){
+    $('gameSwitch').innerHTML = '換個遊戲玩：' + spec.others
+      .map(g => `<a href="?g=${g.id}">${g.title}</a>`).join('');
+  }
 
   /* 有排行榜才需要暱稱 */
   if (board.enabled){

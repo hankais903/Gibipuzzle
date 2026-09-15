@@ -29,16 +29,16 @@ export function createFrame(root, spec = {}){
 
       <div class="status">
         <div class="count">${spec.countIcon || ''} <em id="placed">0</em>/<em id="total">0</em></div>
-        <div class="lives" id="lives" aria-label="剩下幾次機會"></div>
+        <div class="lives" id="lives" aria-label="剩下幾次機會"${spec.lives === 0 ? " hidden" : ""}></div>
         <div class="hint-line" id="msg" role="status" aria-live="polite"></div>
       </div>
 
-      <div class="stage" id="stage" style="--chrome-h:${spec.chromeHeight || 296}px">
+      <div class="stage" id="stage" style="--chrome-h:${spec.chromeHeight || 296}px;--stage-aspect:${spec.aspect || 1}">
         <div class="grid" id="grid"></div>
         <div class="loading" id="loading">準備中…</div>
       </div>
 
-      <div class="tools">
+      <div class="tools" style="--tool-count:${tools.length}">
         ${tools.map(t => `<button class="tool" id="tool-${t.id}"><span>${t.icon}</span>${t.label}` +
           (t.badge ? `<i class="badge" id="badge-${t.id}"></i>` : '') + `</button>`).join('')}
       </div>
@@ -94,6 +94,8 @@ export function createFrame(root, spec = {}){
     setGrade:   s  => { $('grade').textContent = s; },
     setCount:   (a, b) => { $('placed').textContent = a; $('total').textContent = b; },
     setVersion: v  => { $('ver').textContent = v; },
+    /* 盤面寬高比，連連看每關不一樣 */
+    setAspect: a => { $('stage').style.setProperty('--stage-aspect', a); },
 
     say(text, bad){
       const m = $('msg');

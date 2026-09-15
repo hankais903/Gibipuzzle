@@ -1,0 +1,75 @@
+/* ═══════════════════════════════════════════════
+   吉比找一樣的 —— 這個遊戲專屬的樣式
+   共用的外框、按鈕、彈窗在 core/theme.css
+   ═══════════════════════════════════════════════ */
+
+/* 格子不留內距與間隔，連線才好對齊；視覺上的縫隙做在磚塊自己身上 */
+.grid{
+  position:relative;width:100%;height:100%;
+  display:grid;gap:0;padding:0;background:transparent;
+}
+
+.tile{
+  position:relative;margin:2.5px;border:0;padding:0;cursor:pointer;min-width:0;min-height:0;
+  border-radius:9px;display:grid;place-items:center;
+  font-size:calc(var(--cell,40px)*.52);line-height:1;
+  box-shadow:0 2px 0 rgba(180,120,110,.22);
+  transition:transform .12s ease-out, box-shadow .12s ease-out;
+  user-select:none;-webkit-user-select:none;
+}
+.tile:hover:not(:disabled){transform:translateY(-1px)}
+.tile:focus-visible{outline:3px solid var(--lamp);outline-offset:2px;z-index:5}
+
+/* 選起來的那一張 */
+.tile.picked{
+  transform:translateY(-2px) scale(1.04);
+  box-shadow:0 0 0 3px var(--lamp), 0 6px 10px -4px rgba(180,120,110,.6);
+  z-index:4;
+}
+/* 提示閃一下 */
+.tile.flash{animation:tileFlash .5s ease-in-out 2}
+@keyframes tileFlash{50%{box-shadow:0 0 0 3px var(--lamp);transform:scale(1.06)}}
+
+/* 配對成功，啵一聲不見 */
+.tile.gone{animation:tileGone .26s ease-in forwards;pointer-events:none}
+@keyframes tileGone{
+  40%{transform:scale(1.18);opacity:1}
+  100%{transform:scale(.2) rotate(8deg);opacity:0}
+}
+/* 已經消掉的位置：留白，不能點 */
+.tile.empty{visibility:hidden;pointer-events:none}
+
+/* 連線：畫在盤面之上，可以延伸到盤面外一格 */
+.link{
+  position:absolute;pointer-events:none;z-index:6;overflow:visible;
+  left:calc(-1 * var(--cell,40px));
+  top:calc(-1 * var(--cell,40px));
+  width:calc(100% + 2 * var(--cell,40px));
+  height:calc(100% + 2 * var(--cell,40px));
+}
+.link polyline{
+  fill:none;stroke:var(--lamp);stroke-width:.16;
+  stroke-linecap:round;stroke-linejoin:round;
+  filter:drop-shadow(0 0 .08px rgba(255,255,255,.9));
+  animation:linkIn .18s ease-out;
+}
+@keyframes linkIn{from{opacity:0}to{opacity:1}}
+
+/* ── 開場畫面：一排東西排成兩兩一對 ── */
+.intro-stage{display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:10px}
+.intro-tile{
+  width:54px;height:54px;border-radius:12px;display:grid;place-items:center;
+  font-size:27px;box-shadow:0 3px 0 rgba(180,120,110,.22);
+  animation:tileDrop .5s cubic-bezier(.34,1.56,.64,1) backwards;
+}
+@keyframes tileDrop{from{transform:translateY(-18px) scale(.5);opacity:0}}
+.intro-tile:nth-child(1){background:var(--r1);animation-delay:.04s}
+.intro-tile:nth-child(2){background:var(--r2);animation-delay:.12s}
+.intro-tile:nth-child(3){background:var(--r4);animation-delay:.20s}
+.intro-tile:nth-child(4){background:var(--r1);animation-delay:.28s}
+.intro-tile:nth-child(5){background:var(--r2);animation-delay:.36s}
+.intro-tile:nth-child(6){background:var(--r4);animation-delay:.44s}
+
+/* 過關卡片上的大圖 */
+.card .matchwin{font-size:56px;letter-spacing:4px;animation:cheer .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes cheer{0%{transform:scale(.5) rotate(-8deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}

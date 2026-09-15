@@ -87,7 +87,8 @@ body{
 @keyframes fade{from{opacity:0}to{opacity:1}}
 
 /* ── 工具列 ── */
-.tools{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+/* 工具數量由遊戲決定，不是固定 4 個 */
+.tools{display:grid;grid-template-columns:repeat(var(--tool-count,4),1fr);gap:7px}
 .tool{
   position:relative;border:0;background:rgba(255,255,255,.8);
   color:var(--cream);border-radius:15px;padding:11px 6px;font-family:var(--body);font-weight:500;
@@ -103,9 +104,13 @@ body{
 }
 
 /* ── 盤面舞台（中間那塊，大小由外框高度決定） ── */
+/* 盤面不一定是正方形：--stage-aspect 是「寬÷高」，
+   吉比是 1，連連看這種橫的盤面會大於 1 */
 .stage{
-  position:relative;width:min(100%,calc(100vh - var(--chrome-h,296px)));
-  width:min(100%,calc(100dvh - var(--chrome-h,296px)));aspect-ratio:1;margin:0 auto;
+  position:relative;
+  width:min(100%,calc((100vh - var(--chrome-h,296px)) * var(--stage-aspect,1)));
+  width:min(100%,calc((100dvh - var(--chrome-h,296px)) * var(--stage-aspect,1)));
+  aspect-ratio:var(--stage-aspect,1);margin:0 auto;
   border-radius:18px;touch-action:none;
   padding:0;background:transparent;
   box-shadow:0 14px 30px -16px rgba(180,120,110,.55);
@@ -158,3 +163,13 @@ body{
 .card{box-shadow:0 12px 30px -14px rgba(180,120,110,.6)}
 
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ── 暫時的遊戲切換（第三階段會換成正式首頁） ── */
+.game-switch{
+  margin-top:18px;font-size:12.5px;color:var(--cream-dim);
+  display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;
+}
+.game-switch a{
+  color:var(--lamp);font-weight:700;text-decoration:none;
+  padding:5px 12px;border-radius:11px;background:rgba(255,255,255,.7);
+}

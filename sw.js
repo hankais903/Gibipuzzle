@@ -2,12 +2,13 @@
    第一次打開時把遊戲整包存起來，之後沒網路也能玩，
    音樂也不用每次重抓。改版時把 VERSION 加一，舊的會自動清掉。 */
 
-const VERSION = 'gibi-v1';
+const VERSION = 'gibi-v2';
 const SHELL = [
   './', './index.html', './app.js', './manifest.json',
   './core/theme.css', './core/util.js', './core/storage.js',
   './core/audio.js', './core/leaderboard.js', './core/frame.js', './core/intro.js',
   './games/gibi/index.js', './games/gibi/levels.js', './games/gibi/style.css',
+  './games/match/index.js', './games/match/levels.js', './games/match/style.css',
   './assets/music1.mp3', './assets/music2.mp3', './assets/music3.mp3',
   './assets/icons/icon-32.png', './assets/icons/icon-180.png',
   './assets/icons/icon-192.png', './assets/icons/icon-512.png',

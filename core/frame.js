@@ -33,7 +33,7 @@ export function createFrame(root, spec = {}){
         <div class="hint-line" id="msg" role="status" aria-live="polite"></div>
       </div>
 
-      <div class="stage" id="stage" style="--chrome-h:${spec.chromeHeight || 296}px;--stage-aspect:${spec.aspect || 1}">
+      <div class="stage" id="stage" style="--stage-aspect:${spec.aspect || 1}">
         <div class="grid" id="grid"></div>
         <div class="loading" id="loading">準備中…</div>
       </div>
@@ -63,6 +63,25 @@ export function createFrame(root, spec = {}){
       </div>
     </div>`;
 
+  /* ── 盤面可用高度 ──
+     外框（標題列、規則卡、狀態列、工具列、版本）的高度是量出來的，
+     不是寫死的。新遊戲多一張規則卡或少一排按鈕都會自動適應。 */
+  function fitStage(){
+    const wrap = root.querySelector('.wrap');
+    const stage = $('stage');
+    const gap = parseFloat(getComputedStyle(wrap).rowGap) || 0;
+    const shell = document.getElementById('shell') || document.body;
+    const ss = getComputedStyle(shell);
+    let used = parseFloat(ss.paddingTop) + parseFloat(ss.paddingBottom);
+    for (const child of wrap.children){
+      if (child === stage) continue;
+      used += child.getBoundingClientRect().height + gap;
+    }
+    const avail = Math.max(80, Math.floor(shell.clientHeight - used));
+    stage.style.setProperty('--avail-h', avail + 'px');
+  }
+  window.addEventListener('resize', fitStage);
+
   /* ── 時鐘 ── */
   let t0 = 0, timer = null;
   const tick = () => { $('clock').textContent = mmss((Date.now() - t0) / 1000); };
@@ -89,13 +108,13 @@ export function createFrame(root, spec = {}){
     boardEl: $('grid'),
     stageEl: $('stage'),
 
-    setLoading: on => { $('loading').style.display = on ? 'grid' : 'none'; },
+    setLoading: on => { $('loading').style.display = on ? 'grid' : 'none'; if (!on) fitStage(); },
     setLevel:   n  => { $('lvlNum').textContent = n; },
     setGrade:   s  => { $('grade').textContent = s; },
     setCount:   (a, b) => { $('placed').textContent = a; $('total').textContent = b; },
     setVersion: v  => { $('ver').textContent = v; },
     /* 盤面寬高比，連連看每關不一樣 */
-    setAspect: a => { $('stage').style.setProperty('--stage-aspect', a); },
+    setAspect: a => { $('stage').style.setProperty('--stage-aspect', a); fitStage(); },
 
     say(text, bad){
       const m = $('msg');
@@ -151,5 +170,6 @@ export function createFrame(root, spec = {}){
     openBoard,
   };
 
+  fitStage();
   return frame;
 }

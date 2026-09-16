@@ -16,9 +16,17 @@
 <link rel="icon" href="assets/icons/icon-32.png" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/icons/icon-180.png">
 <link rel="stylesheet" href="core/theme.css">
+<!-- 讓核心模組同時開始下載，而不是一個載完才發現要載下一個 -->
+<link rel="modulepreload" href="app.js">
+<link rel="modulepreload" href="core/frame.js">
+<link rel="modulepreload" href="core/intro.js">
+<link rel="modulepreload" href="core/audio.js">
+<link rel="modulepreload" href="core/storage.js">
+<link rel="modulepreload" href="core/leaderboard.js">
+<link rel="modulepreload" href="core/util.js">
 </head>
 <body>
-<div id="app"></div>
+<div id="shell"><div id="app"></div></div>
 <script type="module" src="app.js"></script>
 </body>
 </html>

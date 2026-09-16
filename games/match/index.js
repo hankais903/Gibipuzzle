@@ -20,16 +20,8 @@ const COACH = {
 export const meta = {
   id: 'match',
   title: '吉比找一樣的',
-  tagline: '幫吉比把一樣的東西配成對',
-  music: ['assets/music1.mp3', 'assets/music2.mp3', 'assets/music3.mp3'],
-  intro: {
-    title: '吉比<br>找一樣的',
-    art: ['🐟','🧶','🎀','🐟','🧶','🎀']
-           .map(f => `<div class="intro-tile">${f}</div>`).join(''),
-  },
   frame: {
     countIcon: '🧩',
-    chromeHeight: 296,
     lives: 0,                 // 這個遊戲不扣愛心，點錯只是重選
     aspect: 1,                // 每關不同，開關時再用 setAspect 調整
     rules: [

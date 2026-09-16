@@ -1,21 +1,20 @@
 /* ═══ 平台入口 ═══
-   現在只有一個遊戲，所以直接進吉比。
-   之後這裡會變成首頁：列出所有遊戲，選了才載入對應的那一個。 */
+   現在只有切換連結；之後首頁會用同一份 CATALOG 列出所有遊戲。 */
 
 import { createFrame } from './core/frame.js';
 import { showIntro } from './core/intro.js';
 import * as audio from './core/audio.js';
-import * as gibi from './games/gibi/index.js';
-import * as match from './games/match/index.js';
-import * as push  from './games/push/index.js';
 
-const VERSION = 'Beta v1.6';
-const GAMES = { gibi, match, push };
+const VERSION = 'Beta v1.7';
 
-/* 之後首頁會讓玩家選；現在先用網址決定，方便測試：
-   index.html?g=match 就會開連連看 */
+const CATALOG = [
+  { id:'gibi',  title:'吉比不能跟吉比坐一起' },
+  { id:'match', title:'吉比找一樣的' },
+  { id:'push',  title:'吉比推毛線球' },
+];
+
 const pick = new URLSearchParams(location.search).get('g');
-const game = GAMES[pick] || gibi;
+const id = CATALOG.some(g => g.id === pick) ? pick : CATALOG[0].id;
 
 /* 平台共用的貓咪圖。
    CSS 變數裡如果放相對路徑，瀏覽器會以「使用它的那份樣式表」為基準去算，
@@ -26,15 +25,19 @@ for (const [name, file] of [['--cat','cat.webp'], ['--cat-win','cat-win.webp']])
   document.documentElement.style.setProperty(name, `url("${url}")`);
 }
 
-/* 只載入這個遊戲的樣式，各遊戲的 CSS 才不會互相蓋掉 */
-await new Promise(done => {
+/* 只載入這一個遊戲：程式與樣式同時抓，不要一個等一個。
+   以前是三個遊戲全部先載入，開場動畫要等十幾個檔案，慢的網路上
+   要兩秒半才看得到。 */
+const cssReady = new Promise(done => {
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = `games/${game.meta.id}/style.css`;
+  link.href = `games/${id}/style.css`;
   link.onload = link.onerror = done;
   document.head.appendChild(link);
 });
-document.documentElement.dataset.game = game.meta.id;
+const [mod] = await Promise.all([ import(`./games/${id}/index.js`), cssReady ]);
+const game = mod;
+document.documentElement.dataset.game = id;
 
 audio.initMusic(game.meta.music);
 
@@ -47,9 +50,7 @@ showIntro(document.body, {
   ...game.meta.intro,
   tagline: game.meta.tagline,
   version: VERSION,
-  others: Object.values(GAMES)
-    .filter(g => g.meta.id !== game.meta.id)
-    .map(g => ({ id: g.meta.id, title: g.meta.title })),
+  others: CATALOG.filter(g => g.id !== id),
 }, () => session.resetClock());            // 看標題的時間不算進成績
 
 /* 離線支援：第一次開啟後就把遊戲存在裝置裡 */

@@ -64,7 +64,7 @@
 
 /* ── 開場畫面：吉比自己的圖（九宮格拼布 + 大貓臉） ── */
 /* 也跟著視窗高度縮，矮視窗才不會把下面的按鈕擠出畫面 */
-.intro-stage{width:min(56vw,220px,30vh);aspect-ratio:1;display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.intro-stage{width:min(56vw,220px,calc(100vh - 300px));aspect-ratio:1;display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
 .patch{
   border-radius:10px;transform:none;opacity:1;
   animation:patchIn .5s cubic-bezier(.34,1.56,.64,1) backwards;

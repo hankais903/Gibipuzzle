@@ -29,7 +29,6 @@ export const meta = {
   },
   frame: {
     countIcon: '🧩',
-    chromeHeight: 296,
     lives: 0,                 // 這個遊戲不扣愛心，點錯只是重選
     aspect: 1,                // 每關不同，開關時再用 setAspect 調整
     rules: [

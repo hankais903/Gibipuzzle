@@ -36,7 +36,6 @@ export const meta = {
   music: ['assets/music1.mp3', 'assets/music2.mp3', 'assets/music3.mp3'],
   frame: {
     countIcon: '<i class="catmini"></i>',
-    chromeHeight: 296,
     rules: [
       { icon:'🧶', text:'每色一隻貓' },
       { icon:'↕',  text:'每行每列<br>一隻貓' },

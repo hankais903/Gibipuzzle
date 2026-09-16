@@ -76,14 +76,18 @@ body{
 .rule.warn{color:#C3323C;background:#FFDCDE}
 
 /* ── 計數 ── */
-.status{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:24px}
+/* 固定兩行高：訊息長短不能改變版面，否則盤面會跟著忽大忽小 */
+.status{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:34px}
 .count{font-family:var(--display);font-size:16px;font-weight:600;display:flex;align-items:center;gap:6px}
 .count em{font-style:normal;color:var(--lamp);font-size:19px}
 .lives{display:flex;gap:3px;font-size:15px;line-height:1}
 .lives span{transition:.35s}
 .lives span.gone{filter:grayscale(1);opacity:.22;transform:scale(.8)}
 .lives span.losing{animation:wobble .4s ease-in-out}
-.hint-line{font-size:12.5px;color:var(--cream-dim);text-align:right;flex:1}
+.hint-line{
+  font-size:12.5px;color:var(--cream-dim);text-align:right;flex:1;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
 .hint-line.bad{color:#D94450}
 
 /* ── 共用動態 ── */
@@ -177,3 +181,44 @@ body{
   color:var(--lamp);font-weight:700;text-decoration:none;
   padding:5px 12px;border-radius:11px;background:rgba(255,255,255,.7);
 }
+
+/* ══ 開場畫面（共用外框） ══
+   每個遊戲的開場「圖」不一樣，但外框、標題、按鈕、暱稱框都共用。
+   這些以前放在吉比的樣式表裡，導致其他遊戲的開場畫面完全沒有樣式。 */
+.intro{
+  position:fixed;inset:0;z-index:40;background:var(--ink);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  padding:24px;text-align:center;transition:opacity .35s;
+}
+.intro.gone{opacity:0;pointer-events:none}
+.intro-stage{position:relative;display:flex;align-items:center;justify-content:center;max-height:34vh}
+.intro-title,.intro-sub,.intro-nick,.intro-go,.intro-ver{
+  animation:riseIn .45s cubic-bezier(.34,1.4,.64,1) backwards;
+}
+.intro-title{animation-delay:.9s}
+.intro-sub{animation-delay:1.05s}
+.intro .intro-nick{animation-delay:1.18s}
+.intro-go{animation-delay:1.2s}
+.intro-ver{animation-delay:1.35s}
+@keyframes riseIn{from{transform:translateY(14px);opacity:0}}
+.intro.fast *{animation-duration:.01s!important;animation-delay:0s!important}
+.intro-title{
+  font-family:var(--display);font-weight:700;font-size:clamp(24px,7.4vw,34px);
+  line-height:1.3;margin:14px 0 0;color:var(--lamp);
+}
+.intro-sub{margin:8px 0 22px;font-size:13.5px;color:var(--cream-dim)}
+.intro-sub.tappable{cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:4px}
+
+.intro .intro-nick{
+  width:min(100%,250px);margin:0 auto 20px;align-self:center;justify-content:center;
+}
+.intro .intro-nick input{width:100%;flex:0 1 auto;text-align:center}
+.intro-rename{
+  border:0;background:none;color:var(--cream-dim);font-family:var(--body);
+  font-size:12.5px;margin-top:14px;cursor:pointer;text-decoration:underline;
+}
+.intro-go{
+  border:0;border-radius:16px;padding:14px 46px;font-family:var(--body);font-weight:700;
+  font-size:16px;background:var(--lamp);color:var(--on-lamp);cursor:pointer;
+}
+.intro-ver{position:absolute;left:0;right:0;bottom:max(16px,env(safe-area-inset-bottom))}

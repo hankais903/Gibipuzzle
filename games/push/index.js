@@ -24,7 +24,6 @@ export const meta = {
   },
   frame: {
     countIcon: '🧶',
-    chromeHeight: 296,
     lives: 0,                 // 推錯不扣血，回上一步就好
     aspect: 1,
     rules: [

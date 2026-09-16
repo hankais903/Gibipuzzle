@@ -50,7 +50,7 @@ audio.initMusic(MUSIC);
 
 await cssReady;
 
-showIntro(document.body, {
+showIntro(document.getElementById('shell'), {
   title: entry.introTitle,
   tagline: entry.tagline,
   art: entry.art,

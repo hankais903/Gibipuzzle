@@ -31,9 +31,24 @@ body{
     radial-gradient(90% 55% at 50% 110%, rgba(180,225,240,.45), transparent 70%),
     var(--ink);
   position:fixed;inset:0;overflow:hidden;touch-action:none;
+  display:flex;align-items:center;justify-content:center;padding:0;
+  overscroll-behavior:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+}
+
+/* ══ 手機直版外殼 ══
+   這是給手機玩的遊戲，所以畫面永遠維持手機直版的比例。
+   常見手機的寬高比介於 0.45（360×800）到 0.56（iPhone SE）之間，
+   落在這個範圍內就整個填滿、不留邊；超出範圍（電腦瀏覽器、側邊欄、
+   平板）則縮成手機形狀置中，讓看到的跟手機上一模一樣。 */
+#shell{
+  position:relative;
+  width:min(100vw, calc(100vh * 0.60));
+  height:min(100vh, calc(100vw / 0.45));
+  width:min(100vw, calc(100dvh * 0.60));
+  height:min(100dvh, calc(100vw / 0.45));
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   padding:max(14px,env(safe-area-inset-top)) 14px max(18px,env(safe-area-inset-bottom));
-  overscroll-behavior:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+  overflow:hidden;
 }
 /* 外層容器：必須自己撐滿寬度。少了這段，寬度會變成「由內容決定」，
    而內容寬度又取決於容器，兩邊互相等對方，畫面就會忽大忽小。 */
@@ -116,8 +131,7 @@ body{
    吉比是 1，連連看這種橫的盤面會大於 1 */
 .stage{
   position:relative;
-  width:min(100%,calc((100vh - var(--chrome-h,296px)) * var(--stage-aspect,1)));
-  width:min(100%,calc((100dvh - var(--chrome-h,296px)) * var(--stage-aspect,1)));
+  width:min(100%, calc(var(--avail-h, 400px) * var(--stage-aspect,1)));
   aspect-ratio:var(--stage-aspect,1);margin:0 auto;
   border-radius:18px;touch-action:none;
   padding:0;background:transparent;
@@ -139,7 +153,7 @@ body{
 
 /* ── 彈窗 ── */
 .done-card{
-  position:fixed;inset:0;background:rgba(107,74,58,.45);backdrop-filter:blur(6px);
+  position:absolute;inset:0;background:rgba(107,74,58,.45);backdrop-filter:blur(6px);
   display:none;place-items:center;padding:24px;z-index:20;
 }
 .done-card.show{display:grid;animation:fade .3s ease-out}
@@ -174,20 +188,22 @@ body{
 
 /* ── 暫時的遊戲切換（第三階段會換成正式首頁） ── */
 .game-switch{
-  margin-top:18px;font-size:12.5px;color:var(--cream-dim);
+  margin-top:12px;font-size:12.5px;color:var(--cream-dim);
   display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;
 }
 .game-switch a{
   color:var(--lamp);font-weight:700;text-decoration:none;
-  padding:5px 12px;border-radius:11px;background:rgba(255,255,255,.7);
+  padding:5px 11px;border-radius:11px;background:rgba(255,255,255,.7);white-space:nowrap;
 }
 
 /* ══ 開場畫面（共用外框） ══
    每個遊戲的開場「圖」不一樣，但外框、標題、按鈕、暱稱框都共用。
    這些以前放在吉比的樣式表裡，導致其他遊戲的開場畫面完全沒有樣式。 */
 .intro{
-  position:fixed;inset:0;z-index:40;background:var(--ink);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  position:absolute;inset:0;z-index:40;background:var(--ink);
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  /* safe center：空間夠就置中，不夠就靠上並可捲動，絕不把內容切掉 */
+  justify-content:safe center;overflow-y:auto;
   padding:24px;text-align:center;transition:opacity .35s;
 }
 .intro.gone{opacity:0;pointer-events:none}
@@ -209,7 +225,7 @@ body{
   font-family:var(--display);font-weight:700;font-size:clamp(24px,7.4vw,34px);
   line-height:1.3;margin:14px 0 0;color:var(--lamp);
 }
-.intro-sub{margin:8px 0 22px;font-size:13.5px;color:var(--cream-dim)}
+.intro-sub{margin:8px 0 18px;font-size:13.5px;color:var(--cream-dim)}
 .intro-sub.tappable{cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:4px}
 
 .intro .intro-nick{

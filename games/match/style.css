@@ -56,10 +56,15 @@
 @keyframes linkIn{from{opacity:0}to{opacity:1}}
 
 /* ── 開場畫面：一排東西排成兩兩一對 ── */
-.intro-stage{display:flex;flex-wrap:wrap;align-items:center;align-content:center;justify-content:center;gap:10px}
+/* 排成兩排三個，正好是三組配對；尺寸跟著容器縮，小視窗也不會擠出去 */
+.intro-stage{
+  container-type:inline-size;
+  width:min(100%,208px);
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8%;
+}
 .intro-tile{
-  width:54px;height:54px;border-radius:12px;display:grid;place-items:center;
-  font-size:27px;box-shadow:0 3px 0 rgba(180,120,110,.22);
+  aspect-ratio:1;border-radius:15%;display:grid;place-items:center;
+  font-size:17cqw;box-shadow:0 3px 0 rgba(180,120,110,.22);
   animation:tileDrop .5s cubic-bezier(.34,1.56,.64,1) backwards;
 }
 @keyframes tileDrop{from{transform:translateY(-18px) scale(.5);opacity:0}}

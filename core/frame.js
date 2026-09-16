@@ -70,13 +70,15 @@ export function createFrame(root, spec = {}){
     const wrap = root.querySelector('.wrap');
     const stage = $('stage');
     const gap = parseFloat(getComputedStyle(wrap).rowGap) || 0;
-    const bs = getComputedStyle(document.body);
-    let used = parseFloat(bs.paddingTop) + parseFloat(bs.paddingBottom);
+    const shell = document.getElementById('shell') || document.body;
+    const ss = getComputedStyle(shell);
+    let used = parseFloat(ss.paddingTop) + parseFloat(ss.paddingBottom);
     for (const child of wrap.children){
       if (child === stage) continue;
       used += child.getBoundingClientRect().height + gap;
     }
-    stage.style.setProperty('--chrome-h', Math.ceil(used) + 'px');
+    const avail = Math.max(80, Math.floor(shell.clientHeight - used));
+    stage.style.setProperty('--avail-h', avail + 'px');
   }
   window.addEventListener('resize', fitStage);
 

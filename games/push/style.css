@@ -62,14 +62,18 @@
 @keyframes bump{25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
 
 /* ── 開場畫面 ── */
-.intro-stage{display:flex;align-items:center;justify-content:center;gap:4px}
+.intro-stage{
+  container-type:inline-size;
+  width:min(100%,208px);
+  display:flex;align-items:center;justify-content:center;gap:2cqw;
+}
 .intro-kitty{
-  width:92px;height:92px;background:var(--cat) center/contain no-repeat;
+  width:44cqw;aspect-ratio:1;background:var(--cat) center/contain no-repeat;
   animation:nudge 1.6s ease-in-out infinite;
 }
-.intro-ball{font-size:44px;animation:rollOn 1.6s ease-in-out infinite}
+.intro-ball{font-size:21cqw;line-height:1;animation:rollOn 1.6s ease-in-out infinite}
 .intro-nest{
-  width:52px;height:52px;border-radius:50%;
+  width:25cqw;aspect-ratio:1;border-radius:50%;flex:none;
   border:4px dashed var(--lamp);opacity:.7;
 }
 @keyframes nudge{0%,100%{transform:translateX(0)}45%{transform:translateX(7px)}}

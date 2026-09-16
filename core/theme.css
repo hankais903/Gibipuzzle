@@ -191,7 +191,10 @@ body{
   padding:24px;text-align:center;transition:opacity .35s;
 }
 .intro.gone{opacity:0;pointer-events:none}
-.intro-stage{position:relative;display:flex;align-items:center;justify-content:center;max-height:34vh}
+/* 共用層只提供定位基準，排版方式由各遊戲自己決定。
+   這裡如果加 align-items / max-height，會把用格線排的開場圖
+   壓成高度 0 而整個看不見。 */
+.intro-stage{position:relative}
 .intro-title,.intro-sub,.intro-nick,.intro-go,.intro-ver{
   animation:riseIn .45s cubic-bezier(.34,1.4,.64,1) backwards;
 }

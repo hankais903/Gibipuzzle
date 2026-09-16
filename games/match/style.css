@@ -56,7 +56,7 @@
 @keyframes linkIn{from{opacity:0}to{opacity:1}}
 
 /* ── 開場畫面：一排東西排成兩兩一對 ── */
-.intro-stage{display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:10px}
+.intro-stage{display:flex;flex-wrap:wrap;align-items:center;align-content:center;justify-content:center;gap:10px}
 .intro-tile{
   width:54px;height:54px;border-radius:12px;display:grid;place-items:center;
   font-size:27px;box-shadow:0 3px 0 rgba(180,120,110,.22);

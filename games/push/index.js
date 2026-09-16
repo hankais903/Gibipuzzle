@@ -16,12 +16,6 @@ const COACH = {
 export const meta = {
   id: 'push',
   title: '吉比推毛線球',
-  tagline: '幫吉比把毛線球推回窩裡',
-  music: ['assets/music1.mp3', 'assets/music2.mp3', 'assets/music3.mp3'],
-  intro: {
-    title: '吉比<br>推毛線球',
-    art: '<div class="intro-kitty"></div><div class="intro-ball">🧶</div><div class="intro-nest"></div>',
-  },
   frame: {
     countIcon: '🧶',
     lives: 0,                 // 推錯不扣血，回上一步就好

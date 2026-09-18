@@ -37,7 +37,7 @@ export const meta = {
   },
 };
 
-export function start(frame){
+export function start(frame, { signal } = {}){
   const save = store('match');
   const S = { level:1, B:null, picked:-1, busy:false, solved:false,
               hints:HINTS, shuffles:SHUFFLES, matched:0, autoShuffles:0, sec:0 };
@@ -56,6 +56,7 @@ export function start(frame){
     frame.stopClock();
 
     setTimeout(() => {
+      if (signal?.aborted) return;        // 已經離開這個遊戲了
       S.B = buildBoard(level, rnd);
       frame.setAspect(S.B.cols / S.B.rows);     // 盤面是橫的，不是正方形
       drawBoard();
@@ -108,7 +109,7 @@ export function start(frame){
     const rect = frame.stageEl.getBoundingClientRect();
     frame.stageEl.style.setProperty('--cell', ((rect.width || 300) / S.B.cols) + 'px');
   }
-  window.addEventListener('resize', () => { if (S.B) measure(); });
+  window.addEventListener('resize', () => { if (S.B) measure(); }, { signal });
 
   /* ══ 點一張 ══ */
   function pick(idx){

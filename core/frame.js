@@ -6,14 +6,17 @@ import { $, el, esc, mmss } from './util.js';
 import * as audio from './audio.js';
 import * as board from './leaderboard.js';
 
-export function createFrame(root, spec = {}){
+export function createFrame(root, spec = {}, { signal, onBack } = {}){
   const rules = spec.rules || [];
   const tools = spec.tools || [];
 
   root.innerHTML = `
     <div class="wrap">
       <div class="topbar">
-        <div class="lvl"><h1>第<span id="lvlNum">1</span>關</h1></div>
+        <div class="lvl">
+          ${onBack ? '<button class="nav" id="back" aria-label="回首頁">←</button>' : ''}
+          <h1>第<span id="lvlNum">1</span>關</h1>
+        </div>
         <div class="meta">
           <div class="grade" id="grade">&nbsp;</div>
           <div class="metarow">
@@ -80,11 +83,20 @@ export function createFrame(root, spec = {}){
     const avail = Math.max(80, Math.floor(shell.clientHeight - used));
     stage.style.setProperty('--avail-h', avail + 'px');
   }
-  window.addEventListener('resize', fitStage);
+  window.addEventListener('resize', fitStage, { signal });
 
   /* ── 時鐘 ── */
   let t0 = 0, timer = null;
-  const tick = () => { $('clock').textContent = mmss((Date.now() - t0) / 1000); };
+  const tick = () => {
+    const c = $('clock');
+    if (!c) return clearInterval(timer);      // 畫面已經換掉了就停下來
+    c.textContent = mmss((Date.now() - t0) / 1000);
+  };
+
+  /* 離開遊戲時，除了事件之外計時器也要停 —— AbortController 清不掉計時器 */
+  signal?.addEventListener('abort', () => clearInterval(timer));
+
+  if (onBack) $('back').onclick = onBack;
 
   /* ── 靜音鈕 ── */
   const paintMute = () => {

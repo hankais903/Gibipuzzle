@@ -44,7 +44,7 @@ export const meta = {
   },
 };
 
-export function start(frame){
+export function start(frame, { signal } = {}){
   const save = store('gibi');
   const S = { level:1, n:6, reg:[], cols:[], cells:[], history:[],
               hints:HINTS, solved:false, over:false, locked:-1, mistakes:0, sec:0 };
@@ -61,6 +61,7 @@ export function start(frame){
     frame.stopClock();
 
     setTimeout(() => {
+      if (signal?.aborted) return;        // 已經離開這個遊戲了
       const lv = buildLevel(level);
       if (!lv){                                   // 真的生不出來就跳過，不讓玩家卡死
         frame.say('這一關出了點狀況，幫你換下一關', true);
@@ -112,7 +113,7 @@ export function start(frame){
     const w = g.getBoundingClientRect().width || 300;
     g.style.setProperty('--cell', ((w - (S.n + 1) * GAP) / S.n) + 'px');
   }
-  window.addEventListener('resize', () => { if (S.reg.length) measure(); });
+  window.addEventListener('resize', () => { if (S.reg.length) measure(); }, { signal });
 
   /* ══ 拖曳連續畫叉 ══ */
   const D = { on:false, mode:null, start:-1, moved:false, suppress:false, last:-1 };
@@ -154,9 +155,9 @@ export function start(frame){
       frame.say(D.mode === 'erase' ? '擦掉一整排叉叉' : '打好一整排叉叉');
     }
   };
-  window.addEventListener('touchmove', e => { if (D.on) e.preventDefault(); }, { passive:false });
-  window.addEventListener('pointerup', endDrag);
-  window.addEventListener('pointercancel', endDrag);
+  window.addEventListener('touchmove', e => { if (D.on) e.preventDefault(); }, { passive:false, signal });
+  window.addEventListener('pointerup', endDrag, { signal });
+  window.addEventListener('pointercancel', endDrag, { signal });
 
   function pushHistory(){
     S.history.push(S.cells.slice());

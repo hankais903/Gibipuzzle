@@ -33,7 +33,7 @@ export const meta = {
   },
 };
 
-export function start(frame){
+export function start(frame, { signal } = {}){
   const save = store('push');
   const S = { level:1, L:null, cat:0, boxes:[], history:[], moves:0, solved:false, sec:0 };
   let ballEls = [], catEl = null, D = [];
@@ -48,6 +48,7 @@ export function start(frame){
     frame.stopClock();
 
     setTimeout(() => {
+      if (signal?.aborted) return;        // 已經離開這個遊戲了
       const L = buildLevel(level);
       if (!L){                                  // 理論上不會發生，但不能讓玩家卡住
         frame.say('這一關出了點狀況，幫你換下一關', true);
@@ -105,7 +106,7 @@ export function start(frame){
     const rect = frame.stageEl.getBoundingClientRect();
     frame.stageEl.style.setProperty('--cell', ((rect.width || 300) / S.L.cols) + 'px');
   }
-  window.addEventListener('resize', () => { if (S.L) measure(); });
+  window.addEventListener('resize', () => { if (S.L) measure(); }, { signal });
 
   function place(el, idx){
     el.style.setProperty('--x', idx % S.L.cols);
@@ -167,7 +168,7 @@ export function start(frame){
     const [cols] = [S.L.cols];
     move(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 1 : -1) : (dy > 0 ? cols : -cols));
   });
-  window.addEventListener('touchmove', e => { if (sw) e.preventDefault(); }, { passive:false });
+  window.addEventListener('touchmove', e => { if (sw) e.preventDefault(); }, { passive:false, signal });
 
   /* 點一格：往那一格的方向走一步 */
   function tapAt(x, y){
@@ -189,7 +190,7 @@ export function start(frame){
     if (d === undefined) return;
     e.preventDefault();
     move(d);
-  });
+  }, { signal });
 
   /* ══ 過關 ══ */
   function win(){
